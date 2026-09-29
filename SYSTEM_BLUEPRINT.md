@@ -133,6 +133,7 @@ Lihat `supabase/migrations/0001_init.sql`. Ringkasan:
 - `raw_material_lots`, `stock_movements`
 - `production_lines`, `job_orders`, `production_batches`, `batch_stage_logs`, `batch_materials`, `qc_checks`
 - `invoices`, `payments`
+- `deliveries` (Delivery Order, `0002_deliveries.sql`): tidak boleh hantar melebihi kuantiti lulus QC; bila semua sudah dihantar, job order → `delivered`
 - Views: `v_raw_material_stock`, `v_job_order_progress`, `v_receivables_aging`
 
 ## 10. Pematuhan (produk kesihatan)

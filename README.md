@@ -13,7 +13,7 @@ Butiran penuh: [SYSTEM_BLUEPRINT.md](SYSTEM_BLUEPRINT.md)
 ## Setup
 
 1. Cipta projek Supabase baru (jangan guna projek Basepoint).
-2. Jalankan `supabase/migrations/0001_init.sql` dalam SQL Editor.
+2. Jalankan fail dalam `supabase/migrations/` **ikut turutan** di SQL Editor: `0001_init.sql`, kemudian `0002_deliveries.sql`.
 3. `cp .env.example .env.local` dan isi nilai-nilainya.
 4. `npm install && npm run dev`
 5. Daftar pengguna pertama dalam Supabase Auth, kemudian tetapkan dia sebagai admin:
