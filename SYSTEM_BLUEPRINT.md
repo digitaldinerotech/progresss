@@ -20,7 +20,7 @@ Dokumen ini ialah "source of truth" untuk sistem. Jika perlu bina semula, berika
 
 - **Next.js 14** (Pages router), **Tailwind CSS v4**, **lucide-react**, **recharts**
 - **Supabase**: Postgres, Auth, Storage (COA, dokumen batch), Row Level Security
-- **Payment gateway**: Billplz (FPX + kad) sebagai default. Kodnya ditulis dalam bentuk adapter di `lib/payments/`, jadi gateway lain (Curlec, ToyyibPay, SenangPay, Stripe) boleh ditambah kemudian.
+- **Payment gateway**: **CHIP** (CHIP Collect: FPX, kad, e-wallet, DuitNow QR). Kodnya ditulis dalam bentuk adapter di `lib/payments/chip.js`.
 - Hosting: Vercel (sama seperti Basepoint)
 
 ## 3. Aliran utama
@@ -29,7 +29,7 @@ Dokumen ini ialah "source of truth" untuk sistem. Jika perlu bina semula, berika
 Client buat order ──► Job Order (draft)
                           │ harga & tarikh disahkan
                           ▼
-                  awaiting_deposit ──► Invois deposit + pautan bayaran (Billplz)
+                  awaiting_deposit ──► Invois deposit + pautan bayaran (CHIP)
                           │ webhook gateway: bayaran berjaya
                           ▼  (trigger DB: auto)
                       confirmed ──► semak kecukupan bahan (BOM × kuantiti)
@@ -100,12 +100,15 @@ Stok ditolak secara automatik (trigger) bila baris `batch_materials` dimasukkan.
 
 ## 7. Payment gateway
 
-- `POST /api/invoices/[id]/pay-link`: cipta bill Billplz untuk invois dan simpan `payment_url`.
-- `POST /api/payments/billplz-webhook`: Billplz callback. Signature `x_signature` disahkan (HMAC-SHA256), kemudian baris `payments` dimasukkan secara **idempotent** (`unique(gateway, gateway_ref)`).
+- `POST /api/invoices/[id]/pay-link`: cipta *purchase* CHIP (`POST /purchases/`) untuk baki invois, dan simpan `checkout_url` sebagai `payment_url`. Emel client wajib (keperluan CHIP).
+- `POST /api/payments/chip-callback`: `success_callback` CHIP.
+  1. Header `X-Signature` disahkan (RSA PKCS#1 v1.5 + SHA-256 atas body mentah, guna kunci awam dari `GET /public_key/`).
+  2. Status purchase **disahkan semula** melalui `GET /purchases/{id}/` (`paid` / `cleared` / `settled`).
+  3. Baris `payments` dimasukkan secara **idempotent** (`unique(gateway, gateway_ref)`), kerana CHIP boleh menghantar callback yang sama berulang kali.
 - Trigger `payments_apply` akan kemas kini `invoices.amount_paid` dan status invois. Jika invois **deposit** sudah dibayar penuh, `job_orders.status` bertukar ke `confirmed` secara automatik.
 - Bayaran manual (pindahan bank / tunai) boleh direkod oleh kewangan melalui jadual yang sama (`method = 'bank_transfer'`).
 
-Env yang diperlukan: `BILLPLZ_API_KEY`, `BILLPLZ_COLLECTION_ID`, `BILLPLZ_X_SIGNATURE_KEY`, `BILLPLZ_SANDBOX`, `SUPABASE_SERVICE_ROLE_KEY`, `APP_URL`.
+Env yang diperlukan: `CHIP_SECRET_KEY`, `CHIP_BRAND_ID`, `CHIP_PUBLIC_KEY` (pilihan), `SUPABASE_SERVICE_ROLE_KEY`, `APP_URL`.
 
 ## 8. Peranan pengguna
 

@@ -20,10 +20,10 @@ Butiran penuh: [SYSTEM_BLUEPRINT.md](SYSTEM_BLUEPRINT.md)
    ```sql
    update profiles set role = 'admin' where id = '<user-id>';
    ```
-6. Billplz: tetapkan **X Signature** dalam tetapan akaun Billplz. Callback URL dihantar secara automatik: `APP_URL/api/payments/billplz-webhook`.
+6. CHIP: ambil **Secret Key** dan **Brand ID** dari portal CHIP (Developers). Callback URL dihantar secara automatik dalam setiap purchase: `APP_URL/api/payments/chip-callback`. Guna test key semasa pembangunan (kad ujian `4444 3333 2222 1111`, CVC `123`).
 
 ## Stack
-Next.js 14 (Pages router) · Tailwind CSS v4 · Supabase · Billplz · lucide-react
+Next.js 14 (Pages router) · Tailwind CSS v4 · Supabase · CHIP · lucide-react
 
 ## Jenama
 Logo di `public/brand/`: `progresss-logo.svg` (latar cerah), `progresss-logo-dark.svg` (latar gelap), `progresss-mark.svg` (ikon).

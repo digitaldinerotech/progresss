@@ -1,5 +1,5 @@
 import { supabaseAdmin, getRequestUser } from '../../../../lib/supabaseAdmin'
-import { GATEWAY, createBill } from '../../../../lib/payments/billplz'
+import { GATEWAY, createPurchase } from '../../../../lib/payments/chip'
 
 // Cipta (atau guna semula) pautan bayaran untuk invois. Boleh dipanggil oleh staf
 // atau oleh client pemilik invois (dari portal client).
@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   if (invoice.payment_url && invoice.gateway === GATEWAY) return res.status(200).json({ url: invoice.payment_url })
 
   try {
-    const { billId, url } = await createBill(invoice, invoice.clients)
+    const { billId, url } = await createPurchase(invoice, invoice.clients)
     await supabaseAdmin.from('invoices').update({
       gateway: GATEWAY,
       gateway_bill_id: billId,
